@@ -1,20 +1,18 @@
+import React from 'react';
 import { useAuthStore } from '../stores/authStore';
+import { useNavigate } from 'react-router-dom';
 
-const LoginPage = () => {
-  const { login } = useAuthStore();
+const LoginPage: React.FC = () => {
+  const { login, isLoading } = useAuthStore();
+  const navigate = useNavigate();
 
-  const handleDemoLogin = () => {
-    // Demo login for now - will implement Google OAuth later
-    const demoUser = {
-      id: 'demo-user-1',
-      email: 'demo@example.com',
-      name: 'Demo User',
-      avatarUrl: 'https://via.placeholder.com/40'
-    };
-    
-    const demoToken = 'demo-token-123';
-    
-    login(demoUser, demoToken);
+  const handleDemoLogin = async () => {
+    try {
+      await login();
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Login failed:', error);
+    }
   };
 
   return (
@@ -25,20 +23,25 @@ const LoginPage = () => {
             Personal CRM
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your Personal CRM
+            Manage your contacts and relationships
           </p>
         </div>
+        
         <div className="mt-8 space-y-6">
-          <div className="text-center">
-            <button 
+          <div>
+            <button
               onClick={handleDemoLogin}
-              className="btn btn-primary w-full"
+              disabled={isLoading}
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              Demo Login
+              {isLoading ? 'Signing in...' : 'Demo Login'}
             </button>
           </div>
-          <div className="text-center text-sm text-gray-500">
-            Your personal CRM for managing contacts and relationships
+          
+          <div className="text-center">
+            <p className="text-sm text-gray-500">
+              Demo mode - no authentication required
+            </p>
           </div>
         </div>
       </div>

@@ -44,14 +44,7 @@ const Layout = ({ children }: LayoutProps) => {
             <div className="flex items-center space-x-4">
               {user && (
                 <div className="flex items-center space-x-2">
-                  {user.avatarUrl && (
-                    <img
-                      className="h-8 w-8 rounded-full"
-                      src={user.avatarUrl}
-                      alt={user.name || user.email}
-                    />
-                  )}
-                  <span className="text-sm text-gray-700">{user.name || user.email}</span>
+                  <span className="text-gray-700 font-medium">{user.name}</span>
                 </div>
               )}
               <button

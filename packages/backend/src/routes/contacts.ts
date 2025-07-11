@@ -1,140 +1,159 @@
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
-import { authenticateToken, AuthRequest } from '../middleware/auth';
+import { Router, Request, Response } from 'express';
+import { authMiddleware } from '../middleware/auth';
 
-const router = express.Router();
-const prisma = new PrismaClient();
+const router = Router();
 
-// Get all contacts for user
-router.get('/', authenticateToken, async (req: AuthRequest, res) => {
+// Apply auth middleware to all routes
+router.use(authMiddleware);
+
+// Get all contacts (demo data)
+router.get('/', async (req: Request, res: Response) => {
   try {
-    const contacts = await prisma.contact.findMany({
-      where: { userId: req.user!.id },
-      include: {
-        contactTags: {
-          include: { tag: true }
-        }
+    // Demo data for now
+    const contacts = [
+      {
+        id: '1',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phone: '+1-555-0123',
+        company: 'Tech Corp',
+        position: 'Software Engineer',
+        tags: ['work', 'tech'],
+        notes: 'Met at conference last month',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       },
-      orderBy: { updatedAt: 'desc' }
-    });
-
-    return res.json({ contacts });
-  } catch (error) {
-    return res.status(500).json({ error: 'Failed to fetch contacts' });
-  }
-});
-
-// Create new contact
-router.post('/', authenticateToken, async (req: AuthRequest, res) => {
-  try {
-    const {
-      firstName,
-      lastName,
-      email,
-      phone,
-      company,
-      jobTitle,
-      address,
-      city,
-      state,
-      zipCode,
-      country,
-      website,
-      linkedInUrl,
-      notes
-    } = req.body;
-
-    const contact = await prisma.contact.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        phone,
-        company,
-        jobTitle,
-        address,
-        city,
-        state,
-        zipCode,
-        country,
-        website,
-        linkedInUrl,
-        notes,
-        userId: req.user!.id
+      {
+        id: '2',
+        firstName: 'Jane',
+        lastName: 'Smith',
+        email: 'jane.smith@example.com',
+        phone: '+1-555-0456',
+        company: 'Design Studio',
+        position: 'UX Designer',
+        tags: ['work', 'design'],
+        notes: 'Great collaborator on previous project',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      {
+        id: '3',
+        firstName: 'Mike',
+        lastName: 'Johnson',
+        email: 'mike.johnson@example.com',
+        phone: '+1-555-0789',
+        company: 'Startup Inc',
+        position: 'CEO',
+        tags: ['work', 'startup'],
+        notes: 'Potential investor for new project',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
-    });
+    ];
 
-    res.status(201).json({ contact });
+    res.json({
+      success: true,
+      contacts,
+      total: contacts.length
+    });
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to create contact' });
+    res.status(500).json({ error: 'Failed to fetch contacts' });
   }
 });
 
 // Get single contact
-router.get('/:id', authenticateToken, async (req: AuthRequest, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
-    const contact = await prisma.contact.findFirst({
-      where: {
-        id: req.params.id,
-        userId: req.user!.id
-      },
-      include: {
-        contactTags: {
-          include: { tag: true }
-        },
-        interactions: {
-          orderBy: { date: 'desc' },
-          take: 10
-        },
-        notes: {
-          orderBy: { updatedAt: 'desc' },
-          take: 5
-        },
-        tasks: {
-          where: { status: 'PENDING' },
-          orderBy: { dueDate: 'asc' }
-        }
+    const { id } = req.params;
+    
+    // Demo data lookup
+    const contacts = [
+      {
+        id: '1',
+        firstName: 'John',
+        lastName: 'Doe',
+        email: 'john.doe@example.com',
+        phone: '+1-555-0123',
+        company: 'Tech Corp',
+        position: 'Software Engineer',
+        tags: ['work', 'tech'],
+        notes: 'Met at conference last month',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       }
-    });
+    ];
 
+    const contact = contacts.find(c => c.id === id);
+    
     if (!contact) {
       return res.status(404).json({ error: 'Contact not found' });
     }
 
-    res.json({ contact });
+    res.json({
+      success: true,
+      contact
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch contact' });
   }
 });
 
-// Update contact
-router.put('/:id', authenticateToken, async (req: AuthRequest, res) => {
+// Create new contact
+router.post('/', async (req: Request, res: Response) => {
   try {
-    const contact = await prisma.contact.updateMany({
-      where: {
-        id: req.params.id,
-        userId: req.user!.id
-      },
-      data: req.body
-    });
+    const contactData = req.body;
+    
+    // In demo mode, just return success with mock data
+    const newContact = {
+      id: Date.now().toString(),
+      ...contactData,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
 
-    res.json({ contact });
+    res.status(201).json({
+      success: true,
+      contact: newContact,
+      message: 'Contact created successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to create contact' });
+  }
+});
+
+// Update contact
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+
+    // In demo mode, just return success
+    const updatedContact = {
+      id,
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    };
+
+    res.json({
+      success: true,
+      contact: updatedContact,
+      message: 'Contact updated successfully'
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to update contact' });
   }
 });
 
 // Delete contact
-router.delete('/:id', authenticateToken, async (req: AuthRequest, res) => {
+router.delete('/:id', async (req: Request, res: Response) => {
   try {
-    await prisma.contact.deleteMany({
-      where: {
-        id: req.params.id,
-        userId: req.user!.id
-      }
-    });
+    const { id } = req.params;
 
-    res.json({ message: 'Contact deleted successfully' });
+    res.json({
+      success: true,
+      message: `Contact ${id} deleted successfully`
+    });
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete contact' });
   }

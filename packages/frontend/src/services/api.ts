@@ -1,28 +1,85 @@
-import axios from 'axios';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+class ApiService {
+  private baseURL: string;
 
-const api = axios.create({
-  baseURL: API_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+  constructor(baseURL: string) {
+    this.baseURL = baseURL;
+  }
 
-// Add auth token to requests
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth-storage');
-  if (token) {
+  private async request<T>(
+    endpoint: string,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseURL}${endpoint}`;
+    
+    const config: RequestInit = {
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+      ...options,
+    };
+
     try {
-      const authData = JSON.parse(token);
-      if (authData.state?.token) {
-        config.headers.Authorization = `Bearer ${authData.state.token}`;
+      const response = await fetch(url, config);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
+      return await response.json();
     } catch (error) {
-      console.error('Error parsing auth token:', error);
+      console.error('API request failed:', error);
+      throw error;
     }
   }
-  return config;
-});
 
-export default api; 
+  // Auth endpoints
+  async login(): Promise<any> {
+    return this.request('/auth/login', {
+      method: 'POST',
+    });
+  }
+
+  async logout(): Promise<any> {
+    return this.request('/auth/logout', {
+      method: 'POST',
+    });
+  }
+
+  async getCurrentUser(): Promise<any> {
+    return this.request('/auth/me');
+  }
+
+  // Contact endpoints
+  async getContacts(): Promise<any> {
+    return this.request('/contacts');
+  }
+
+  async getContact(id: string): Promise<any> {
+    return this.request(`/contacts/${id}`);
+  }
+
+  async createContact(contactData: any): Promise<any> {
+    return this.request('/contacts', {
+      method: 'POST',
+      body: JSON.stringify(contactData),
+    });
+  }
+
+  async updateContact(id: string, contactData: any): Promise<any> {
+    return this.request(`/contacts/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(contactData),
+    });
+  }
+
+  async deleteContact(id: string): Promise<any> {
+    return this.request(`/contacts/${id}`, {
+      method: 'DELETE',
+    });
+  }
+}
+
+export const apiService = new ApiService(API_BASE_URL); 
