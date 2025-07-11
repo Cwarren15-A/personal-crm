@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run vercel-build",
   "installCommand": "npm run install:all",
   "framework": null,
   "functions": {
     "packages/backend/src/index.ts": {
-      "runtime": "nodejs18.x"
+      "runtime": "@vercel/node@18"
     }
   },
   "rewrites": [
@@ -18,8 +18,5 @@
       "destination": "/packages/frontend/dist/$1"
     }
   ],
-  "outputDirectory": "packages/frontend/dist",
-  "env": {
-    "NODE_ENV": "production"
-  }
+  "outputDirectory": "packages/frontend/dist"
 } 
