@@ -20,7 +20,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res) => {
 
     return res.json({ contacts });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch contacts' });
+    return res.status(500).json({ error: 'Failed to fetch contacts' });
   }
 });
 
@@ -66,7 +66,7 @@ router.post('/', authenticateToken, async (req: AuthRequest, res) => {
 
     res.status(201).json({ contact });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create contact' });
+    return res.status(500).json({ error: 'Failed to create contact' });
   }
 });
 
