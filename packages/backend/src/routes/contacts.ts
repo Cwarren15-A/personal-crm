@@ -18,7 +18,7 @@ router.get('/', authenticateToken, async (req: AuthRequest, res) => {
       orderBy: { updatedAt: 'desc' }
     });
 
-    res.json({ contacts });
+    return res.json({ contacts });
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch contacts' });
   }

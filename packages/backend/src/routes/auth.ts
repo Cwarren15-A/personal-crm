@@ -52,7 +52,7 @@ router.post('/google', async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    res.json({
+    return res.json({
       token: jwtToken,
       user: {
         id: user.id,
