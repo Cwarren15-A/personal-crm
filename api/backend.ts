@@ -5,14 +5,13 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
-import { logger } from './utils/logger';
+import { logger } from '../packages/backend/src/utils/logger';
 
 // Load environment variables
 dotenv.config();
 
 const app = express();
 const prisma = new PrismaClient();
-const PORT = process.env.PORT || 3001;
 
 // Rate limiting
 const limiter = rateLimit({
@@ -24,7 +23,7 @@ const limiter = rateLimit({
 // Middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  origin: process.env.FRONTEND_URL || 'https://personal-crm.vercel.app',
   credentials: true,
 }));
 app.use(limiter);
@@ -38,13 +37,13 @@ app.get('/health', (req, res) => {
 });
 
 // API routes
-app.use('/api/auth', require('./routes/auth').default);
-app.use('/api/contacts', require('./routes/contacts').default);
-app.use('/api/interactions', require('./routes/interactions').default);
-app.use('/api/notes', require('./routes/notes').default);
-app.use('/api/tasks', require('./routes/tasks').default);
-app.use('/api/tags', require('./routes/tags').default);
-app.use('/api/microsoft', require('./routes/microsoft').default);
+app.use('/auth', require('../packages/backend/src/routes/auth'));
+app.use('/contacts', require('../packages/backend/src/routes/contacts'));
+app.use('/interactions', require('../packages/backend/src/routes/interactions'));
+app.use('/notes', require('../packages/backend/src/routes/notes'));
+app.use('/tasks', require('../packages/backend/src/routes/tasks'));
+app.use('/tags', require('../packages/backend/src/routes/tags'));
+app.use('/microsoft', require('../packages/backend/src/routes/microsoft'));
 
 // Error handling middleware
 app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -60,23 +59,5 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Not Found' });
 });
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  logger.info('SIGTERM received, shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-process.on('SIGINT', async () => {
-  logger.info('SIGINT received, shutting down gracefully');
-  await prisma.$disconnect();
-  process.exit(0);
-});
-
-// Start server
-app.listen(PORT, () => {
-  logger.info(`Server running on port ${PORT}`);
-  logger.info(`Environment: ${process.env.NODE_ENV}`);
-});
-
+// Export for Vercel
 export default app; 

@@ -96,3 +96,4 @@ Thumbs.db
 # Generated files
 prisma/migrations/
 !prisma/migrations/migration_lock.toml 
+.vercel
