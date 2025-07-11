@@ -21,10 +21,10 @@ const LoginPage = () => {
       }
 
       // Initialize Google OAuth
-      const client = google.accounts.oauth2.initTokenClient({
+      const client = window.google.accounts.oauth2.initTokenClient({
         client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
         scope: 'email profile',
-        callback: async (response) => {
+        callback: async (response: { access_token: string }) => {
           try {
             // Send token to backend
             const { data } = await api.post('/auth/google', {
