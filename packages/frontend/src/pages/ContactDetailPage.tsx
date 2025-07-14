@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
+import ContactForm from '../components/ContactForm';
 
 interface Contact {
   id: string;
@@ -58,6 +59,7 @@ const ContactDetailPage: React.FC = () => {
     dueDate: '', 
     priority: 'MEDIUM' as const 
   });
+  const [showEditModal, setShowEditModal] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -155,6 +157,19 @@ const ContactDetailPage: React.FC = () => {
     // TODO: Update task in API
   };
 
+  const handleEditContact = () => {
+    setShowEditModal(true);
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    fetchContactDetails(); // Refresh the contact data
+  };
+
+  const handleEditCancel = () => {
+    setShowEditModal(false);
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -187,7 +202,10 @@ const ContactDetailPage: React.FC = () => {
           </h1>
         </div>
         <div className="flex space-x-2">
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          <button 
+            onClick={handleEditContact}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
             Edit Contact
           </button>
         </div>
@@ -507,6 +525,19 @@ const ContactDetailPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Edit Contact Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <ContactForm
+              contact={contact}
+              onSuccess={handleEditSuccess}
+              onCancel={handleEditCancel}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
