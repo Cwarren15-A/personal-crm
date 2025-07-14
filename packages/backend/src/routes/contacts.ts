@@ -1,63 +1,43 @@
 import { Router, Request, Response } from 'express';
+import { PrismaClient } from '@prisma/client';
 import { authMiddleware } from '../middleware/auth';
 
 const router = Router();
+const prisma = new PrismaClient();
 
 // Apply auth middleware to all routes
 router.use(authMiddleware);
 
-// Get all contacts (demo data)
+// Get all contacts
 router.get('/', async (req: Request, res: Response) => {
   try {
-    // Demo data for now
-    const contacts = [
-      {
-        id: '1',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1-555-0123',
-        company: 'Tech Corp',
-        position: 'Software Engineer',
-        tags: ['work', 'tech'],
-        notes: 'Met at conference last month',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+    const userId = req.user!.id;
+    
+    const contacts = await prisma.contact.findMany({
+      where: { userId },
+      include: {
+        contactTags: {
+          include: {
+            tag: true
+          }
+        }
       },
-      {
-        id: '2',
-        firstName: 'Jane',
-        lastName: 'Smith',
-        email: 'jane.smith@example.com',
-        phone: '+1-555-0456',
-        company: 'Design Studio',
-        position: 'UX Designer',
-        tags: ['work', 'design'],
-        notes: 'Great collaborator on previous project',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      },
-      {
-        id: '3',
-        firstName: 'Mike',
-        lastName: 'Johnson',
-        email: 'mike.johnson@example.com',
-        phone: '+1-555-0789',
-        company: 'Startup Inc',
-        position: 'CEO',
-        tags: ['work', 'startup'],
-        notes: 'Potential investor for new project',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }
-    ];
+      orderBy: { updatedAt: 'desc' }
+    });
+
+    // Transform tags for frontend
+    const contactsWithTags = contacts.map(contact => ({
+      ...contact,
+      tags: contact.contactTags.map(ct => ct.tag.name)
+    }));
 
     res.json({
       success: true,
-      contacts,
+      contacts: contactsWithTags,
       total: contacts.length
     });
   } catch (error) {
+    console.error('Error fetching contacts:', error);
     res.status(500).json({ error: 'Failed to fetch contacts' });
   }
 });
@@ -66,35 +46,38 @@ router.get('/', async (req: Request, res: Response) => {
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = req.user!.id;
     
-    // Demo data lookup
-    const contacts = [
-      {
-        id: '1',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1-555-0123',
-        company: 'Tech Corp',
-        position: 'Software Engineer',
-        tags: ['work', 'tech'],
-        notes: 'Met at conference last month',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+    const contact = await prisma.contact.findFirst({
+      where: { 
+        id,
+        userId 
+      },
+      include: {
+        contactTags: {
+          include: {
+            tag: true
+          }
+        }
       }
-    ];
-
-    const contact = contacts.find(c => c.id === id);
+    });
     
     if (!contact) {
       return res.status(404).json({ error: 'Contact not found' });
     }
 
+    // Transform tags for frontend
+    const contactWithTags = {
+      ...contact,
+      tags: contact.contactTags.map((ct: any) => ct.tag.name)
+    };
+
     res.json({
       success: true,
-      contact
+      contact: contactWithTags
     });
   } catch (error) {
+    console.error('Error fetching contact:', error);
     res.status(500).json({ error: 'Failed to fetch contact' });
   }
 });
@@ -102,15 +85,40 @@ router.get('/:id', async (req: Request, res: Response) => {
 // Create new contact
 router.post('/', async (req: Request, res: Response) => {
   try {
-    const contactData = req.body;
+    const userId = req.user!.id;
+    const { tags, ...contactData } = req.body;
     
-    // In demo mode, just return success with mock data
-    const newContact = {
-      id: Date.now().toString(),
-      ...contactData,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    // Create the contact
+    const newContact = await prisma.contact.create({
+      data: {
+        ...contactData,
+        userId
+      }
+    });
+
+    // Handle tags if provided
+    if (tags && Array.isArray(tags) && tags.length > 0) {
+      for (const tagName of tags) {
+        // Find or create tag
+        let tag = await prisma.tag.findFirst({
+          where: { name: tagName, userId }
+        });
+        
+        if (!tag) {
+          tag = await prisma.tag.create({
+            data: { name: tagName, userId }
+          });
+        }
+        
+        // Create contact-tag relationship
+        await prisma.contactTag.create({
+          data: {
+            contactId: newContact.id,
+            tagId: tag.id
+          }
+        });
+      }
+    }
 
     res.status(201).json({
       success: true,
@@ -118,6 +126,7 @@ router.post('/', async (req: Request, res: Response) => {
       message: 'Contact created successfully'
     });
   } catch (error) {
+    console.error('Error creating contact:', error);
     res.status(500).json({ error: 'Failed to create contact' });
   }
 });
@@ -126,14 +135,47 @@ router.post('/', async (req: Request, res: Response) => {
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const updateData = req.body;
+    const userId = req.user!.id;
+    const { tags, ...updateData } = req.body;
 
-    // In demo mode, just return success
-    const updatedContact = {
-      id,
-      ...updateData,
-      updatedAt: new Date().toISOString()
-    };
+    // Update the contact
+    const updatedContact = await prisma.contact.update({
+      where: { 
+        id,
+        userId 
+      },
+      data: updateData
+    });
+
+    // Handle tags if provided
+    if (tags && Array.isArray(tags)) {
+      // Remove existing tags
+      await prisma.contactTag.deleteMany({
+        where: { contactId: id }
+      });
+      
+      // Add new tags
+      for (const tagName of tags) {
+        // Find or create tag
+        let tag = await prisma.tag.findFirst({
+          where: { name: tagName, userId }
+        });
+        
+        if (!tag) {
+          tag = await prisma.tag.create({
+            data: { name: tagName, userId }
+          });
+        }
+        
+        // Create contact-tag relationship
+        await prisma.contactTag.create({
+          data: {
+            contactId: id,
+            tagId: tag.id
+          }
+        });
+      }
+    }
 
     res.json({
       success: true,
@@ -141,6 +183,7 @@ router.put('/:id', async (req: Request, res: Response) => {
       message: 'Contact updated successfully'
     });
   } catch (error) {
+    console.error('Error updating contact:', error);
     res.status(500).json({ error: 'Failed to update contact' });
   }
 });
@@ -149,12 +192,22 @@ router.put('/:id', async (req: Request, res: Response) => {
 router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
+    const userId = req.user!.id;
+
+    // Delete contact (cascade will handle related records)
+    await prisma.contact.delete({
+      where: { 
+        id,
+        userId 
+      }
+    });
 
     res.json({
       success: true,
-      message: `Contact ${id} deleted successfully`
+      message: 'Contact deleted successfully'
     });
   } catch (error) {
+    console.error('Error deleting contact:', error);
     res.status(500).json({ error: 'Failed to delete contact' });
   }
 });
