@@ -26,9 +26,9 @@ router.get('/', async (req: Request, res: Response) => {
     });
 
     // Transform tags for frontend
-    const contactsWithTags = contacts.map(contact => ({
+    const contactsWithTags = contacts.map((contact: any) => ({
       ...contact,
-      tags: contact.contactTags.map(ct => ct.tag.name)
+      tags: contact.contactTags.map((ct: any) => ct.tag.name)
     }));
 
     res.json({
@@ -36,9 +36,11 @@ router.get('/', async (req: Request, res: Response) => {
       contacts: contactsWithTags,
       total: contacts.length
     });
+    return;
   } catch (error) {
     console.error('Error fetching contacts:', error);
     res.status(500).json({ error: 'Failed to fetch contacts' });
+    return;
   }
 });
 
@@ -76,9 +78,11 @@ router.get('/:id', async (req: Request, res: Response) => {
       success: true,
       contact: contactWithTags
     });
+    return;
   } catch (error) {
     console.error('Error fetching contact:', error);
     res.status(500).json({ error: 'Failed to fetch contact' });
+    return;
   }
 });
 
@@ -125,9 +129,11 @@ router.post('/', async (req: Request, res: Response) => {
       contact: newContact,
       message: 'Contact created successfully'
     });
+    return;
   } catch (error) {
     console.error('Error creating contact:', error);
     res.status(500).json({ error: 'Failed to create contact' });
+    return;
   }
 });
 
@@ -182,9 +188,11 @@ router.put('/:id', async (req: Request, res: Response) => {
       contact: updatedContact,
       message: 'Contact updated successfully'
     });
+    return;
   } catch (error) {
     console.error('Error updating contact:', error);
     res.status(500).json({ error: 'Failed to update contact' });
+    return;
   }
 });
 
@@ -206,9 +214,11 @@ router.delete('/:id', async (req: Request, res: Response) => {
       success: true,
       message: 'Contact deleted successfully'
     });
+    return;
   } catch (error) {
     console.error('Error deleting contact:', error);
     res.status(500).json({ error: 'Failed to delete contact' });
+    return;
   }
 });
 

@@ -25,9 +25,10 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
 };
 
 // Optional: Keep the original middleware for future use
-export const requireAuth = (req: Request, res: Response, next: NextFunction) => {
+export const requireAuth = (req: Request, res: Response, next: NextFunction): void => {
   if (!req.user) {
-    return res.status(401).json({ error: 'Authentication required' });
+    res.status(401).json({ error: 'Authentication required' });
+    return;
   }
   next();
 }; 
