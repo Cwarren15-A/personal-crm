@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import ContactForm from '../components/ContactForm';
 
@@ -24,6 +25,7 @@ interface Contact {
 }
 
 const ContactsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -123,7 +125,8 @@ const ContactsPage: React.FC = () => {
           {contacts.map((contact) => (
             <div
               key={contact.id}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow cursor-pointer"
+              onClick={() => navigate(`/contacts/${contact.id}`)}
             >
               <div className="flex items-start justify-between mb-4">
                 <div>

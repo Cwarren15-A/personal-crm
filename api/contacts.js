@@ -21,8 +21,15 @@ export default function handler(req, res) {
       phone: '+1-555-0123',
       company: 'Tech Corp',
       jobTitle: 'Software Engineer',
+      address: '123 Main St',
+      city: 'San Francisco',
+      state: 'CA',
+      zipCode: '94105',
+      country: 'USA',
+      website: 'https://techcorp.com',
+      linkedInUrl: 'https://linkedin.com/in/johndoe',
       tags: ['work', 'tech'],
-      notes: 'Met at conference last month',
+      notes: 'Met at conference last month. Very interested in our new product line.',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     },
@@ -34,8 +41,15 @@ export default function handler(req, res) {
       phone: '+1-555-0456',
       company: 'Design Studio',
       jobTitle: 'UX Designer',
+      address: '456 Oak Ave',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'USA',
+      website: 'https://designstudio.com',
+      linkedInUrl: 'https://linkedin.com/in/janesmith',
       tags: ['work', 'design'],
-      notes: 'Great collaborator on previous project',
+      notes: 'Great collaborator on previous project. Excellent design skills.',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
@@ -44,11 +58,24 @@ export default function handler(req, res) {
   try {
     switch (req.method) {
       case 'GET':
-        res.json({
-          success: true,
-          contacts: demoContacts,
-          total: demoContacts.length
-        });
+        // Check if it's a single contact request
+        if (req.query.id) {
+          const contact = demoContacts.find(c => c.id === req.query.id);
+          if (!contact) {
+            return res.status(404).json({ error: 'Contact not found' });
+          }
+          res.json({
+            success: true,
+            contact
+          });
+        } else {
+          // Return all contacts
+          res.json({
+            success: true,
+            contacts: demoContacts,
+            total: demoContacts.length
+          });
+        }
         break;
 
       case 'POST':

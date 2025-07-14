@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ContactsPage from './pages/ContactsPage';
+import ContactDetailPage from './pages/ContactDetailPage';
 
 function App() {
   const { isAuthenticated, checkAuth, isLoading } = useAuthStore();
@@ -54,6 +55,18 @@ function App() {
             isAuthenticated ? (
               <Layout>
                 <ContactsPage />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/contacts/:id"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <ContactDetailPage />
               </Layout>
             ) : (
               <Navigate to="/login" replace />
