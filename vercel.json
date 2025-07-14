@@ -4,6 +4,11 @@
   "installCommand": "npm run install:all",
   "framework": "vite",
   "outputDirectory": "packages/frontend/dist",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
