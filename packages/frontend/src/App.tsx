@@ -9,6 +9,7 @@ import ContactDetailPage from './pages/ContactDetailPage';
 import InteractionsPage from './pages/InteractionsPage';
 import InteractionDetailPage from './pages/InteractionDetailPage';
 import NotesPage from './pages/NotesPage';
+import TasksPage from './pages/TasksPage';
 
 function App() {
   const { isAuthenticated, checkAuth, isLoading } = useAuthStore();
@@ -105,12 +106,7 @@ function App() {
           element={
             isAuthenticated ? (
               <Layout>
-                <div className="space-y-6">
-                  <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-                  <div className="bg-white shadow rounded-lg p-6">
-                    <p className="text-gray-600">Tasks management coming soon...</p>
-                  </div>
-                </div>
+                <TasksPage />
               </Layout>
             ) : (
               <Navigate to="/login" replace />
