@@ -205,7 +205,7 @@ const DashboardPage: React.FC = () => {
     }
   };
 
-  const handleTaskClick = (task: UpcomingTask) => {
+  const handleTaskClick = (_task: UpcomingTask) => {
     // Navigate to tasks page - could be enhanced to show specific task
     navigate('/tasks');
   };
