@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 interface Note {
@@ -24,7 +23,6 @@ interface Contact {
 }
 
 const NotesPage: React.FC = () => {
-  const navigate = useNavigate();
   const [notes, setNotes] = useState<Note[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
