@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 interface Interaction {
@@ -26,6 +27,7 @@ interface Contact {
 }
 
 const InteractionsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [interactions, setInteractions] = useState<Interaction[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
@@ -377,8 +379,12 @@ const InteractionsPage: React.FC = () => {
               No interactions found. {searchTerm || filterType !== 'ALL' || filterOutcome !== 'ALL' ? 'Try adjusting your filters.' : 'Add your first interaction!'}
             </div>
           ) : (
-            filteredInteractions.map((interaction) => (
-              <div key={interaction.id} className="p-6 hover:bg-gray-50">
+                         filteredInteractions.map((interaction) => (
+               <div 
+                 key={interaction.id} 
+                 className="p-6 hover:bg-gray-50 cursor-pointer transition-colors"
+                 onClick={() => navigate(`/interactions/${interaction.id}`)}
+               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4">
                     <div className="flex-shrink-0">
@@ -416,13 +422,19 @@ const InteractionsPage: React.FC = () => {
                   
                   <div className="flex items-center space-x-2">
                     <button
-                      onClick={() => handleEditInteraction(interaction)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditInteraction(interaction);
+                      }}
                       className="text-blue-600 hover:text-blue-800 text-sm"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDeleteInteraction(interaction.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteInteraction(interaction.id);
+                      }}
                       className="text-red-600 hover:text-red-800 text-sm"
                     >
                       Delete

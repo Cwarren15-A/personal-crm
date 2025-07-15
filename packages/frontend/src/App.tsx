@@ -7,6 +7,7 @@ import DashboardPage from './pages/DashboardPage';
 import ContactsPage from './pages/ContactsPage';
 import ContactDetailPage from './pages/ContactDetailPage';
 import InteractionsPage from './pages/InteractionsPage';
+import InteractionDetailPage from './pages/InteractionDetailPage';
 
 function App() {
   const { isAuthenticated, checkAuth, isLoading } = useAuthStore();
@@ -80,6 +81,18 @@ function App() {
             isAuthenticated ? (
               <Layout>
                 <InteractionsPage />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
+        <Route
+          path="/interactions/:id"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <InteractionDetailPage />
               </Layout>
             ) : (
               <Navigate to="/login" replace />
