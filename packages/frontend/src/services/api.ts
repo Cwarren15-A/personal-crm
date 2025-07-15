@@ -80,6 +80,36 @@ class ApiService {
       method: 'DELETE',
     });
   }
+
+  // Task endpoints
+  async getTasks(params: any = {}): Promise<any> {
+    const query = new URLSearchParams(params).toString();
+    return this.request(`/tasks${query ? `?${query}` : ''}`);
+  }
+
+  async getTask(id: string): Promise<any> {
+    return this.request(`/tasks/${id}`);
+  }
+
+  async createTask(taskData: any): Promise<any> {
+    return this.request('/tasks', {
+      method: 'POST',
+      body: JSON.stringify(taskData),
+    });
+  }
+
+  async updateTask(id: string, taskData: any): Promise<any> {
+    return this.request(`/tasks/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(taskData),
+    });
+  }
+
+  async deleteTask(id: string): Promise<any> {
+    return this.request(`/tasks/${id}`, {
+      method: 'DELETE',
+    });
+  }
 }
 
 export const apiService = new ApiService(API_BASE_URL); 
