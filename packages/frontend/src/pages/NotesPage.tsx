@@ -425,14 +425,18 @@ const NotesPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
+                    {note.isPinned && (
+                      <span className="text-yellow-500">📌</span>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTogglePin(note.id);
                       }}
-                      className={note.isPinned ? "text-yellow-500" : "text-gray-400 hover:text-yellow-500"}
+                      className="text-gray-400 hover:text-yellow-500"
+                      title={note.isPinned ? "Unpin note" : "Pin note"}
                     >
-                      📌
+                      {note.isPinned ? "📌" : "📍"}
                     </button>
                     <button
                       onClick={(e) => {
@@ -496,7 +500,6 @@ const NotesPage: React.FC = () => {
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${getTypeColor(note.type)}`}>
                           {note.type.replace('_', ' ')}
                         </span>
-                        {note.isPinned && <span className="text-yellow-500">📌</span>}
                       </div>
                       
                       <p className="text-gray-600 mb-2 line-clamp-2">{note.content}</p>
@@ -524,14 +527,18 @@ const NotesPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center space-x-2">
+                    {note.isPinned && (
+                      <span className="text-yellow-500">📌</span>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTogglePin(note.id);
                       }}
-                      className={note.isPinned ? "text-yellow-500" : "text-gray-400 hover:text-yellow-500"}
+                      className="text-gray-400 hover:text-yellow-500"
+                      title={note.isPinned ? "Unpin note" : "Pin note"}
                     >
-                      📌
+                      {note.isPinned ? "📌" : "📍"}
                     </button>
                     <button
                       onClick={(e) => {
