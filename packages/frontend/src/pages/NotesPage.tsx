@@ -255,12 +255,7 @@ const NotesPage: React.FC = () => {
     }
   };
 
-  const handleTogglePin = (id: string) => {
-    setNotes(prev => prev.map(note => 
-      note.id === id ? { ...note, isPinned: !note.isPinned } : note
-    ));
-    // TODO: Update in API
-  };
+
 
   const handleAddTag = () => {
     if (tagInput.trim() && !formData.tags.includes(tagInput.trim())) {
