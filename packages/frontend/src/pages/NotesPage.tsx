@@ -425,13 +425,12 @@ const NotesPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    {note.isPinned && <span className="text-yellow-500">📌</span>}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         handleTogglePin(note.id);
                       }}
-                      className="text-gray-400 hover:text-yellow-500"
+                      className={note.isPinned ? "text-yellow-500" : "text-gray-400 hover:text-yellow-500"}
                     >
                       📌
                     </button>
@@ -530,7 +529,7 @@ const NotesPage: React.FC = () => {
                         e.stopPropagation();
                         handleTogglePin(note.id);
                       }}
-                      className="text-gray-400 hover:text-yellow-500"
+                      className={note.isPinned ? "text-yellow-500" : "text-gray-400 hover:text-yellow-500"}
                     >
                       📌
                     </button>
