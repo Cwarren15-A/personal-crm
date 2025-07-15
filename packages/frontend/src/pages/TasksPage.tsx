@@ -31,6 +31,27 @@ const defaultForm: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'completedAt'> 
   contactId: '',
 };
 
+const statusOptions = [
+  { value: 'ALL', label: 'All Statuses' },
+  { value: 'PENDING', label: 'Pending' },
+  { value: 'IN_PROGRESS', label: 'In Progress' },
+  { value: 'COMPLETED', label: 'Completed' },
+  { value: 'CANCELLED', label: 'Cancelled' },
+];
+const priorityOptions = [
+  { value: 'ALL', label: 'All Priorities' },
+  { value: 'LOW', label: 'Low' },
+  { value: 'MEDIUM', label: 'Medium' },
+  { value: 'HIGH', label: 'High' },
+  { value: 'URGENT', label: 'Urgent' },
+];
+const sortOptions = [
+  { value: 'dueDate', label: 'Due Date' },
+  { value: 'priority', label: 'Priority' },
+  { value: 'status', label: 'Status' },
+  { value: 'createdAt', label: 'Created' },
+];
+
 const TasksPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -41,6 +62,13 @@ const TasksPage: React.FC = () => {
   const [form, setForm] = useState<typeof defaultForm>(defaultForm);
   const [submitting, setSubmitting] = useState(false);
   const [filterContact, setFilterContact] = useState<string>('ALL');
+  const [filterStatus, setFilterStatus] = useState<string>('ALL');
+  const [filterPriority, setFilterPriority] = useState<string>('ALL');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState<string>('dueDate');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
     fetchContacts();
@@ -56,11 +84,10 @@ const TasksPage: React.FC = () => {
     }
   };
 
-  const fetchTasks = async (contactId?: string) => {
+  const fetchTasks = async () => {
     try {
       setLoading(true);
-      const params = contactId && contactId !== 'ALL' ? { contactId } : {};
-      const res = await apiService.getTasks(params);
+      const res = await apiService.getTasks();
       setTasks(res.tasks || []);
     } catch (err) {
       setError('Failed to fetch tasks');
@@ -92,7 +119,7 @@ const TasksPage: React.FC = () => {
     if (!window.confirm('Delete this task?')) return;
     try {
       await apiService.deleteTask(id);
-      fetchTasks(filterContact);
+      fetchTasks();
     } catch (err) {
       alert('Failed to delete task');
     }
@@ -110,7 +137,7 @@ const TasksPage: React.FC = () => {
       setShowForm(false);
       setEditingTask(null);
       setForm(defaultForm);
-      fetchTasks(filterContact);
+      fetchTasks();
     } catch (err) {
       alert('Failed to save task');
     } finally {
@@ -122,15 +149,10 @@ const TasksPage: React.FC = () => {
     const newStatus = task.status === 'COMPLETED' ? 'PENDING' : 'COMPLETED';
     try {
       await apiService.updateTask(task.id, { ...task, status: newStatus });
-      fetchTasks(filterContact);
+      fetchTasks();
     } catch (err) {
       alert('Failed to update status');
     }
-  };
-
-  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFilterContact(e.target.value);
-    fetchTasks(e.target.value);
   };
 
   const getContactName = (contactId?: string) => {
@@ -139,9 +161,66 @@ const TasksPage: React.FC = () => {
     return contact ? `${contact.firstName} ${contact.lastName || ''}` : '';
   };
 
+  // Filtering, searching, and sorting
+  const filteredTasks = tasks
+    .filter(task => {
+      const matchesContact = filterContact === 'ALL' || task.contactId === filterContact;
+      const matchesStatus = filterStatus === 'ALL' || task.status === filterStatus;
+      const matchesPriority = filterPriority === 'ALL' || task.priority === filterPriority;
+      const matchesSearch =
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (task.description || '').toLowerCase().includes(searchTerm.toLowerCase());
+      return matchesContact && matchesStatus && matchesPriority && matchesSearch;
+    })
+    .sort((a, b) => {
+      let comparison = 0;
+      if (sortBy === 'dueDate') {
+        comparison = (a.dueDate || '').localeCompare(b.dueDate || '');
+      } else if (sortBy === 'priority') {
+        const order = ['LOW', 'MEDIUM', 'HIGH', 'URGENT'];
+        comparison = order.indexOf(a.priority) - order.indexOf(b.priority);
+      } else if (sortBy === 'status') {
+        const order = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'];
+        comparison = order.indexOf(a.status) - order.indexOf(b.status);
+      } else if (sortBy === 'createdAt') {
+        comparison = a.createdAt.localeCompare(b.createdAt);
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+  // Badge helpers
+  const getStatusBadge = (status: Task['status']) => {
+    const map: any = {
+      PENDING: 'bg-gray-200 text-gray-800',
+      IN_PROGRESS: 'bg-yellow-200 text-yellow-900',
+      COMPLETED: 'bg-green-200 text-green-900',
+      CANCELLED: 'bg-red-200 text-red-900',
+    };
+    return map[status] || 'bg-gray-100 text-gray-800';
+  };
+  const getPriorityBadge = (priority: Task['priority']) => {
+    const map: any = {
+      LOW: 'bg-blue-100 text-blue-800',
+      MEDIUM: 'bg-gray-200 text-gray-800',
+      HIGH: 'bg-orange-200 text-orange-900',
+      URGENT: 'bg-red-200 text-red-900',
+    };
+    return map[priority] || 'bg-gray-100 text-gray-800';
+  };
+
+  // Task detail modal
+  const openDetailModal = (task: Task) => {
+    setSelectedTask(task);
+    setShowDetailModal(true);
+  };
+  const closeDetailModal = () => {
+    setSelectedTask(null);
+    setShowDetailModal(false);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6 gap-4">
         <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
         <button
           onClick={handleAddClick}
@@ -151,14 +230,14 @@ const TasksPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Filters */}
-      <div className="mb-6 flex items-center space-x-4">
+      {/* Filters, Search, Sort */}
+      <div className="mb-6 flex flex-col md:flex-row md:items-end gap-4 flex-wrap">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Filter by Contact</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Contact</label>
           <select
             value={filterContact}
-            onChange={handleFilterChange}
-            className="w-56 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onChange={e => setFilterContact(e.target.value)}
+            className="w-48 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="ALL">All Contacts</option>
             {contacts.map(contact => (
@@ -166,6 +245,63 @@ const TasksPage: React.FC = () => {
                 {contact.firstName} {contact.lastName || ''} {contact.company ? `(${contact.company})` : ''}
               </option>
             ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+          <select
+            value={filterStatus}
+            onChange={e => setFilterStatus(e.target.value)}
+            className="w-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {statusOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+          <select
+            value={filterPriority}
+            onChange={e => setFilterPriority(e.target.value)}
+            className="w-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {priorityOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            placeholder="Search tasks..."
+            className="w-56 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+          <select
+            value={sortBy}
+            onChange={e => setSortBy(e.target.value)}
+            className="w-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {sortOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
+          <select
+            value={sortOrder}
+            onChange={e => setSortOrder(e.target.value as 'asc' | 'desc')}
+            className="w-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
           </select>
         </div>
       </div>
@@ -178,52 +314,35 @@ const TasksPage: React.FC = () => {
         <div className="flex justify-center items-center h-64">
           <div className="text-red-600">Error: {error}</div>
         </div>
-      ) : tasks.length === 0 ? (
+      ) : filteredTasks.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500 text-lg">No tasks found</p>
         </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {tasks.map((task) => (
+          {filteredTasks.map((task) => (
             <div
               key={task.id}
-              className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow relative border-l-4 ${
+              className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow relative border-l-4 cursor-pointer ${
                 task.status === 'COMPLETED'
                   ? 'border-green-400 bg-green-50'
                   : task.status === 'IN_PROGRESS'
                   ? 'border-yellow-400 bg-yellow-50'
                   : 'border-gray-200'
               }`}
+              onClick={() => openDetailModal(task)}
             >
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-xl font-semibold text-gray-900 line-clamp-2">
                   {task.title}
                 </h3>
                 <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleEditClick(task)}
-                    className="text-gray-400 hover:text-blue-600"
-                    title="Edit"
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    onClick={() => handleDelete(task.id)}
-                    className="text-gray-400 hover:text-red-600"
-                    title="Delete"
-                  >
-                    🗑️
-                  </button>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(task.status)}`}>{task.status.replace('_', ' ')}</span>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getPriorityBadge(task.priority)}`}>{task.priority}</span>
                 </div>
               </div>
               <p className="text-gray-600 mb-2 line-clamp-2">{task.description}</p>
               <div className="flex items-center text-sm text-gray-500 mb-2 space-x-4">
-                <span>
-                  <strong>Status:</strong> {task.status.replace('_', ' ')}
-                </span>
-                <span>
-                  <strong>Priority:</strong> {task.priority}
-                </span>
                 {task.dueDate && (
                   <span>
                     <strong>Due:</strong> {task.dueDate.slice(0, 10)}
@@ -235,16 +354,32 @@ const TasksPage: React.FC = () => {
                   </span>
                 )}
               </div>
-              <button
-                onClick={() => handleStatusToggle(task)}
-                className={`mt-2 px-3 py-1 rounded text-xs font-medium ${
-                  task.status === 'COMPLETED'
-                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    : 'bg-green-600 text-white hover:bg-green-700'
-                }`}
-              >
-                {task.status === 'COMPLETED' ? 'Mark as Pending' : 'Mark as Completed'}
-              </button>
+              <div className="flex items-center space-x-2 mt-2">
+                <button
+                  onClick={e => { e.stopPropagation(); handleEditClick(task); }}
+                  className="text-gray-400 hover:text-blue-600"
+                  title="Edit"
+                >
+                  ✏️
+                </button>
+                <button
+                  onClick={e => { e.stopPropagation(); handleDelete(task.id); }}
+                  className="text-gray-400 hover:text-red-600"
+                  title="Delete"
+                >
+                  🗑️
+                </button>
+                <button
+                  onClick={e => { e.stopPropagation(); handleStatusToggle(task); }}
+                  className={`px-3 py-1 rounded text-xs font-medium ${
+                    task.status === 'COMPLETED'
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-green-600 text-white hover:bg-green-700'
+                  }`}
+                >
+                  {task.status === 'COMPLETED' ? 'Mark as Pending' : 'Mark as Completed'}
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -300,6 +435,19 @@ const TasksPage: React.FC = () => {
                 </select>
               </div>
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                <select
+                  value={form.status}
+                  onChange={e => setForm(f => ({ ...f, status: e.target.value as Task['status'] }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="COMPLETED">Completed</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </div>
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Contact (Optional)</label>
                 <select
                   value={form.contactId}
@@ -335,6 +483,77 @@ const TasksPage: React.FC = () => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Task Detail Modal */}
+      {showDetailModal && selectedTask && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg shadow-lg relative">
+            <button
+              className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-xl"
+              onClick={closeDetailModal}
+              title="Close"
+            >
+              ×
+            </button>
+            <h2 className="text-2xl font-bold mb-4">Task Details</h2>
+            <div className="space-y-2">
+              <div>
+                <span className="font-semibold">Title:</span> {selectedTask.title}
+              </div>
+              <div>
+                <span className="font-semibold">Description:</span> {selectedTask.description || <span className="text-gray-400">(none)</span>}
+              </div>
+              <div>
+                <span className="font-semibold">Status:</span> <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusBadge(selectedTask.status)}`}>{selectedTask.status.replace('_', ' ')}</span>
+              </div>
+              <div>
+                <span className="font-semibold">Priority:</span> <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getPriorityBadge(selectedTask.priority)}`}>{selectedTask.priority}</span>
+              </div>
+              <div>
+                <span className="font-semibold">Due Date:</span> {selectedTask.dueDate ? selectedTask.dueDate.slice(0, 10) : <span className="text-gray-400">(none)</span>}
+              </div>
+              <div>
+                <span className="font-semibold">Contact:</span> {getContactName(selectedTask.contactId) || <span className="text-gray-400">(none)</span>}
+              </div>
+              <div>
+                <span className="font-semibold">Created:</span> {selectedTask.createdAt.slice(0, 10)}
+              </div>
+              <div>
+                <span className="font-semibold">Updated:</span> {selectedTask.updatedAt.slice(0, 10)}
+              </div>
+              {selectedTask.completedAt && (
+                <div>
+                  <span className="font-semibold">Completed:</span> {selectedTask.completedAt.slice(0, 10)}
+                </div>
+              )}
+            </div>
+            <div className="flex justify-end space-x-2 mt-6">
+              <button
+                onClick={() => { closeDetailModal(); handleEditClick(selectedTask); }}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => { closeDetailModal(); handleDelete(selectedTask.id); }}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => { closeDetailModal(); handleStatusToggle(selectedTask); }}
+                className={`px-4 py-2 rounded-md font-medium text-sm ${
+                  selectedTask.status === 'COMPLETED'
+                    ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    : 'bg-green-600 text-white hover:bg-green-700'
+                }`}
+              >
+                {selectedTask.status === 'COMPLETED' ? 'Mark as Pending' : 'Mark as Completed'}
+              </button>
+            </div>
           </div>
         </div>
       )}
