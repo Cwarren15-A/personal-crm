@@ -425,9 +425,6 @@ const NotesPage: React.FC = () => {
                     </span>
                   </div>
                   <div className="flex items-center space-x-1">
-                    {note.isPinned && (
-                      <span className="text-yellow-500">📌</span>
-                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -436,7 +433,7 @@ const NotesPage: React.FC = () => {
                       className="text-gray-400 hover:text-yellow-500"
                       title={note.isPinned ? "Unpin note" : "Pin note"}
                     >
-                      {note.isPinned ? "📌" : "📍"}
+                      📌
                     </button>
                     <button
                       onClick={(e) => {
@@ -527,9 +524,6 @@ const NotesPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    {note.isPinned && (
-                      <span className="text-yellow-500">📌</span>
-                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -538,7 +532,7 @@ const NotesPage: React.FC = () => {
                       className="text-gray-400 hover:text-yellow-500"
                       title={note.isPinned ? "Unpin note" : "Pin note"}
                     >
-                      {note.isPinned ? "📌" : "📍"}
+                      📌
                     </button>
                     <button
                       onClick={(e) => {
