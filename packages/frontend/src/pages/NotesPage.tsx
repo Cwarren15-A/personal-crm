@@ -428,16 +428,6 @@ const NotesPage: React.FC = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleTogglePin(note.id);
-                      }}
-                      className="text-gray-400 hover:text-yellow-500"
-                      title={note.isPinned ? "Unpin note" : "Pin note"}
-                    >
-                      📌
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
                         handleDeleteNote(note.id);
                       }}
                       className="text-gray-400 hover:text-red-500"
@@ -524,16 +514,6 @@ const NotesPage: React.FC = () => {
                   </div>
                   
                   <div className="flex items-center space-x-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleTogglePin(note.id);
-                      }}
-                      className="text-gray-400 hover:text-yellow-500"
-                      title={note.isPinned ? "Unpin note" : "Pin note"}
-                    >
-                      📌
-                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
