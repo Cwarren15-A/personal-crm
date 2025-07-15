@@ -22,9 +22,11 @@ router.get('/', async (req, res) => {
       orderBy: { dueDate: 'asc' },
     });
     res.json({ success: true, tasks });
+    return;
   } catch (error) {
     console.error('Error fetching tasks:', error);
     res.status(500).json({ error: 'Failed to fetch tasks' });
+    return;
   }
 });
 
@@ -34,11 +36,16 @@ router.get('/:id', async (req, res) => {
     const userId = req.user!.id;
     const { id } = req.params;
     const task = await prisma.task.findFirst({ where: { id, userId } });
-    if (!task) return res.status(404).json({ error: 'Task not found' });
+    if (!task) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
     res.json({ success: true, task });
+    return;
   } catch (error) {
     console.error('Error fetching task:', error);
     res.status(500).json({ error: 'Failed to fetch task' });
+    return;
   }
 });
 
@@ -59,9 +66,11 @@ router.post('/', async (req, res) => {
       },
     });
     res.status(201).json({ success: true, task: newTask });
+    return;
   } catch (error) {
     console.error('Error creating task:', error);
     res.status(500).json({ error: 'Failed to create task' });
+    return;
   }
 });
 
@@ -73,7 +82,10 @@ router.put('/:id', async (req, res) => {
     const { title, description, dueDate, priority, status, contactId, completedAt } = req.body;
     // Only update if the task belongs to the user
     const existing = await prisma.task.findFirst({ where: { id, userId } });
-    if (!existing) return res.status(404).json({ error: 'Task not found' });
+    if (!existing) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
     const updatedTask = await prisma.task.update({
       where: { id },
       data: {
@@ -87,9 +99,11 @@ router.put('/:id', async (req, res) => {
       },
     });
     res.json({ success: true, task: updatedTask });
+    return;
   } catch (error) {
     console.error('Error updating task:', error);
     res.status(500).json({ error: 'Failed to update task' });
+    return;
   }
 });
 
@@ -100,12 +114,17 @@ router.delete('/:id', async (req, res) => {
     const { id } = req.params;
     // Only delete if the task belongs to the user
     const existing = await prisma.task.findFirst({ where: { id, userId } });
-    if (!existing) return res.status(404).json({ error: 'Task not found' });
+    if (!existing) {
+      res.status(404).json({ error: 'Task not found' });
+      return;
+    }
     await prisma.task.delete({ where: { id } });
     res.json({ success: true });
+    return;
   } catch (error) {
     console.error('Error deleting task:', error);
     res.status(500).json({ error: 'Failed to delete task' });
+    return;
   }
 });
 
