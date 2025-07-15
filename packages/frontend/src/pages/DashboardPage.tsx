@@ -182,6 +182,34 @@ const DashboardPage: React.FC = () => {
     return `${diffInDays}d ago`;
   };
 
+  const handleActivityClick = (activity: RecentActivity) => {
+    switch (activity.type) {
+      case 'contact':
+        // Navigate to contact detail page if we have contact info
+        if (activity.contactName) {
+          // For now, navigate to contacts page - we could enhance this to find the specific contact
+          navigate('/contacts');
+        }
+        break;
+      case 'task':
+        navigate('/tasks');
+        break;
+      case 'note':
+        navigate('/notes');
+        break;
+      case 'interaction':
+        navigate('/interactions');
+        break;
+      default:
+        navigate('/contacts');
+    }
+  };
+
+  const handleTaskClick = (task: UpcomingTask) => {
+    // Navigate to tasks page - could be enhanced to show specific task
+    navigate('/tasks');
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -213,7 +241,10 @@ const DashboardPage: React.FC = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
+        <div 
+          className="bg-white rounded-lg shadow p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => navigate('/contacts')}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-blue-100 rounded-lg">
               <span className="text-2xl">👥</span>
@@ -225,7 +256,10 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div 
+          className="bg-white rounded-lg shadow p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => navigate('/tasks')}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-green-100 rounded-lg">
               <span className="text-2xl">✅</span>
@@ -237,7 +271,10 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div 
+          className="bg-white rounded-lg shadow p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => navigate('/notes')}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-purple-100 rounded-lg">
               <span className="text-2xl">📝</span>
@@ -249,7 +286,10 @@ const DashboardPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow p-6">
+        <div 
+          className="bg-white rounded-lg shadow p-6 cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => navigate('/contacts')}
+        >
           <div className="flex items-center">
             <div className="p-2 bg-orange-100 rounded-lg">
               <span className="text-2xl">📈</span>
@@ -272,7 +312,11 @@ const DashboardPage: React.FC = () => {
           <div className="p-6">
             <div className="space-y-4">
               {recentActivity.map((activity) => (
-                <div key={activity.id} className="flex items-start space-x-3">
+                <div 
+                  key={activity.id} 
+                  className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => handleActivityClick(activity)}
+                >
                   <div className="flex-shrink-0">
                     <span className="text-xl">{getActivityIcon(activity.type)}</span>
                   </div>
@@ -300,7 +344,11 @@ const DashboardPage: React.FC = () => {
           <div className="p-6">
             <div className="space-y-4">
               {upcomingTasks.map((task) => (
-                <div key={task.id} className="border-l-4 border-blue-500 pl-4">
+                <div 
+                  key={task.id} 
+                  className="border-l-4 border-blue-500 pl-4 p-3 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
+                  onClick={() => handleTaskClick(task)}
+                >
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-900">{task.title}</p>
