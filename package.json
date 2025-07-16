@@ -16,13 +16,22 @@
     "install:all": "npm install && npm run install:backend && npm run install:frontend",
     "install:backend": "cd packages/backend && npm install",
     "install:frontend": "cd packages/frontend && npm install",
-    "vercel-build": "npm run install:all && npm run build"
+    "vercel-build": "npm run install:all && npx prisma generate && npm run build"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "@vercel/node": "^3.0.0"
+    "@vercel/node": "^3.2.29",
+    "concurrently": "^8.2.2"
   },
-  "keywords": ["crm", "microsoft365", "personal", "contacts"],
+  "keywords": [
+    "crm",
+    "microsoft365",
+    "personal",
+    "contacts"
+  ],
   "author": "",
-  "license": "MIT"
-} 
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.12.0",
+    "prisma": "^6.12.0"
+  }
+}

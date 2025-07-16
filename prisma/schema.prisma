@@ -1,0 +1,171 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  avatarUrl String?
+  msUserId  String?  @unique // Microsoft 365 User ID
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  contacts     Contact[]
+  interactions Interaction[]
+  notes        Note[]
+  tasks        Task[]
+  tags         Tag[]
+
+  @@map("users")
+}
+
+model Contact {
+  id          String  @id @default(cuid())
+  firstName   String
+  lastName    String?
+  email       String?
+  phone       String?
+  company     String?
+  jobTitle    String?
+  address     String?
+  city        String?
+  state       String?
+  zipCode     String?
+  country     String?
+  website     String?
+  linkedInUrl String?
+  avatarUrl   String?
+  
+  // Microsoft 365 specific fields
+  msContactId String? @unique // Microsoft Graph Contact ID
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  lastContactedAt DateTime?
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  interactions Interaction[]
+  notes        Note[]
+  tasks        Task[]
+  contactTags  ContactTag[]
+
+  @@map("contacts")
+}
+
+model Interaction {
+  id          String          @id @default(cuid())
+  type        String @default("OTHER") // Allowed: EMAIL, PHONE_CALL, MEETING, NOTE, TASK, SOCIAL_MEDIA, OTHER
+  subject     String?
+  description String?
+  date        DateTime        @default(now())
+  duration    Int?            // Duration in minutes
+  
+  // Microsoft 365 specific fields
+  msEmailId   String?         // Microsoft Graph Email ID
+  msEventId   String?         // Microsoft Graph Calendar Event ID
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@map("interactions")
+}
+
+model Note {
+  id      String @id @default(cuid())
+  title   String
+  content String
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
+
+model Task {
+  id          String     @id @default(cuid())
+  title       String
+  description String?
+  dueDate     DateTime?
+  priority    String   @default("MEDIUM") // Allowed: LOW, MEDIUM, HIGH, URGENT
+  status      String   @default("PENDING") // Allowed: PENDING, IN_PROGRESS, COMPLETED, CANCELLED
+  
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  completedAt DateTime?
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  contactId String?
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+model Tag {
+  id    String @id @default(cuid())
+  name  String
+  color String @default("#3B82F6") // Hex color code
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String
+
+  contactTags ContactTag[]
+
+  @@unique([userId, name])
+  @@map("tags")
+}
+
+model ContactTag {
+  id String @id @default(cuid())
+  
+  // Relations
+  contactId String
+  contact   Contact @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  
+  tagId String
+  tag   Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+
+  @@unique([contactId, tagId])
+  @@map("contact_tags")
+} 
