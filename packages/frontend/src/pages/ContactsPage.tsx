@@ -106,15 +106,15 @@ const ContactsPage: React.FC = () => {
         />
       ) : (
         <>
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-900">Contacts</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Contacts</h1>
             <button 
               onClick={handleAddContact}
               className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
             >
-              Add Contact
-            </button>
-          </div>
+          Add Contact
+        </button>
+      </div>
 
       {contacts.length === 0 ? (
         <div className="text-center py-12">

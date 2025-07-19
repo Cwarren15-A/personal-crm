@@ -131,11 +131,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
         {/* Basic Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 mb-1">
               First Name *
             </label>
             <input
               type="text"
+              id="firstName"
               name="firstName"
               value={formData.firstName}
               onChange={handleInputChange}
@@ -145,11 +146,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 mb-1">
               Last Name
             </label>
             <input
               type="text"
+              id="lastName"
               name="lastName"
               value={formData.lastName}
               onChange={handleInputChange}
@@ -161,11 +163,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
         {/* Contact Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
             </label>
             <input
               type="email"
+              id="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
@@ -174,11 +177,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 mb-1">
               Phone
             </label>
             <input
               type="tel"
+              id="phone"
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
@@ -190,11 +194,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
         {/* Professional Information */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="company" className="block text-sm font-medium text-gray-700 mb-1">
               Company
             </label>
             <input
               type="text"
+              id="company"
               name="company"
               value={formData.company}
               onChange={handleInputChange}
@@ -203,11 +208,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="jobTitle" className="block text-sm font-medium text-gray-700 mb-1">
               Job Title
             </label>
             <input
               type="text"
+              id="jobTitle"
               name="jobTitle"
               value={formData.jobTitle}
               onChange={handleInputChange}
@@ -218,11 +224,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
 
         {/* Address */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="address" className="block text-sm font-medium text-gray-700 mb-1">
             Address
           </label>
           <input
             type="text"
+            id="address"
             name="address"
             value={formData.address}
             onChange={handleInputChange}
@@ -232,11 +239,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="city" className="block text-sm font-medium text-gray-700 mb-1">
               City
             </label>
             <input
               type="text"
+              id="city"
               name="city"
               value={formData.city}
               onChange={handleInputChange}
@@ -245,11 +253,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="state" className="block text-sm font-medium text-gray-700 mb-1">
               State
             </label>
             <input
               type="text"
+              id="state"
               name="state"
               value={formData.state}
               onChange={handleInputChange}
@@ -258,11 +267,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="zipCode" className="block text-sm font-medium text-gray-700 mb-1">
               ZIP Code
             </label>
             <input
               type="text"
+              id="zipCode"
               name="zipCode"
               value={formData.zipCode}
               onChange={handleInputChange}
@@ -272,11 +282,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="country" className="block text-sm font-medium text-gray-700 mb-1">
             Country
           </label>
           <input
             type="text"
+            id="country"
             name="country"
             value={formData.country}
             onChange={handleInputChange}
@@ -287,11 +298,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
         {/* Online Presence */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="website" className="block text-sm font-medium text-gray-700 mb-1">
               Website
             </label>
             <input
               type="url"
+              id="website"
               name="website"
               value={formData.website}
               onChange={handleInputChange}
@@ -300,11 +312,12 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="linkedInUrl" className="block text-sm font-medium text-gray-700 mb-1">
               LinkedIn
             </label>
             <input
               type="url"
+              id="linkedInUrl"
               name="linkedInUrl"
               value={formData.linkedInUrl}
               onChange={handleInputChange}
@@ -315,12 +328,13 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
 
         {/* Tags */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="tagInput" className="block text-sm font-medium text-gray-700 mb-1">
             Tags
           </label>
           <div className="flex gap-2 mb-2">
             <input
               type="text"
+              id="tagInput"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
@@ -347,6 +361,7 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
                     type="button"
                     onClick={() => handleRemoveTag(tag)}
                     className="ml-2 text-blue-600 hover:text-blue-800"
+                    aria-label={`Remove ${tag} tag`}
                   >
                     ×
                   </button>
@@ -358,10 +373,11 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
 
         {/* Notes */}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">
             Notes
           </label>
           <textarea
+            id="notes"
             name="notes"
             value={formData.notes}
             onChange={handleInputChange}
@@ -393,4 +409,4 @@ const ContactForm: React.FC<ContactFormProps> = ({ contact, onSuccess, onCancel 
   );
 };
 
-export default ContactForm; 
+export default ContactForm;

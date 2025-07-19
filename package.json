@@ -16,7 +16,7 @@
     "install:all": "npm install && npm run install:backend && npm run install:frontend",
     "install:backend": "cd packages/backend && npm install",
     "install:frontend": "cd packages/frontend && npm install",
-    "vercel-build": "npm run install:all && npx prisma generate && npm run build"
+    "vercel-build": "npm run install:all && npx prisma generate --schema=./prisma/schema.prisma && npm run build"
   },
   "devDependencies": {
     "@vercel/node": "^3.2.29",

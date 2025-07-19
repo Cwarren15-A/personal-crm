@@ -400,7 +400,7 @@ const ContactDetailPage: React.FC = () => {
 
           {/* Tasks Tab */}
           {activeTab === 'tasks' && (
-            <div className="space-y-6">
+    <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Tasks</h3>
                 <button className="text-blue-600 hover:text-blue-800">

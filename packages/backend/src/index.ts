@@ -1,11 +1,13 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { logger } from './utils/logger';
+import errorHandler from './middleware/errorHandler';
+import cookieParser from 'cookie-parser';
+import csrf from 'tiny-csrf';
 
 // Load environment variables
 dotenv.config();
@@ -28,32 +30,37 @@ app.use(cors({
   credentials: true,
 }));
 app.use(limiter);
-app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser(process.env.CSRF_SECRET || 'this-is-a-secret-key'));
+app.use(csrf({
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    sameSite: 'strict',
+  }
+}));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+app.get('/api/v1/csrf-token', (req, res) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
+
 // API routes
-app.use('/api/auth', require('./routes/auth').default);
-app.use('/api/contacts', require('./routes/contacts').default);
-app.use('/api/interactions', require('./routes/interactions').default);
-app.use('/api/notes', require('./routes/notes').default);
-app.use('/api/tasks', require('./routes/tasks').default);
-app.use('/api/tags', require('./routes/tags').default);
-app.use('/api/microsoft', require('./routes/microsoft').default);
+app.use('/api/v1/auth', require('./routes/auth').default);
+app.use('/api/v1/contacts', require('./routes/contacts').default);
+app.use('/api/v1/interactions', require('./routes/interactions').default);
+app.use('/api/v1/notes', require('./routes/notes').default);
+app.use('/api/v1/tasks', require('./routes/tasks').default);
+app.use('/api/v1/tags', require('./routes/tags').default);
+app.use('/api/v1/microsoft', require('./routes/microsoft').default);
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  logger.error('Unhandled error:', err);
-  res.status(500).json({
-    error: 'Internal Server Error',
-    message: process.env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
-  });
-});
+app.use(errorHandler);
 
 // 404 handler
 app.use('*', (req, res) => {
