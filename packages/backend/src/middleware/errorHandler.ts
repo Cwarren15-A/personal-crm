@@ -1,10 +1,10 @@
 
 import { Request, Response, NextFunction } from 'express';
-import { ZodError } from 'zod';
 
 interface AppError extends Error {
   statusCode?: number;
   isOperational?: boolean;
+  errors?: any[];
 }
 
 const errorHandler = (
@@ -16,9 +16,10 @@ const errorHandler = (
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Something went wrong';
 
-  if (err instanceof ZodError) {
+  // Handle validation errors
+  if (err.name === 'ValidationError') {
     statusCode = 400;
-    message = err.errors.map((e) => e.message).join(', ');
+    message = err.message || 'Validation error';
   }
 
   // Log the error for debugging purposes

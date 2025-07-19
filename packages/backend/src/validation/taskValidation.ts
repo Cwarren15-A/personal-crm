@@ -8,7 +8,7 @@ const taskSchema = {
     dueDate: Joi.date().iso().optional().allow(null),
     priority: Joi.string().valid('LOW', 'MEDIUM', 'HIGH', 'URGENT').optional(),
     status: Joi.string().valid('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED').optional(),
-    contactId: Joi.string().cuid().optional().allow(null),
+    contactId: Joi.string().optional().allow(null),
   }),
   update: Joi.object({
     title: Joi.string().min(1).max(100).optional(),
@@ -16,7 +16,7 @@ const taskSchema = {
     dueDate: Joi.date().iso().optional().allow(null),
     priority: Joi.string().valid('LOW', 'MEDIUM', 'HIGH', 'URGENT').optional(),
     status: Joi.string().valid('PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED').optional(),
-    contactId: Joi.string().cuid().optional().allow(null),
+    contactId: Joi.string().optional().allow(null),
     completedAt: Joi.date().iso().optional().allow(null),
   }),
 };

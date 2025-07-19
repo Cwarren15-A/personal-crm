@@ -58,7 +58,7 @@ const InteractionDetailPage: React.FC = () => {
       
       // Fetch contacts for the dropdown
       const contactsResponse = await apiService.getContacts();
-      const contactsData = contactsResponse.contacts || [];
+      const contactsData = (contactsResponse as any).contacts || [];
       setContacts(contactsData);
 
       // Demo interaction data (replace with real API call later)

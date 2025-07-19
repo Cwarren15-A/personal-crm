@@ -33,13 +33,7 @@ app.use(limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser(process.env.CSRF_SECRET || 'this-is-a-secret-key'));
-app.use(csrf({
-  cookie: {
-    secure: process.env.NODE_ENV === 'production',
-    httpOnly: true,
-    sameSite: 'strict',
-  }
-}));
+app.use(csrf(process.env.CSRF_SECRET || 'this-is-a-secret-key'));
 
 // Health check endpoint
 app.get('/health', (req, res) => {

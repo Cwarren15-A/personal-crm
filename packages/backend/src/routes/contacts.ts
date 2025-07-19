@@ -61,7 +61,8 @@ router.get('/:id', asyncHandler(async (req: Request, res: Response) => {
   });
   
   if (!contact) {
-    return res.status(404).json({ error: 'Contact not found' });
+    res.status(404).json({ error: 'Contact not found' });
+    return;
   }
 
   // Transform tags for frontend

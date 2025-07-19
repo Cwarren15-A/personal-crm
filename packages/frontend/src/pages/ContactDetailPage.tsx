@@ -71,7 +71,7 @@ const ContactDetailPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiService.getContact(id!);
-      setContact(response.contact);
+      setContact((response as any).contact);
       
       // TODO: Fetch notes and tasks when API endpoints are ready
       // For now, using demo data

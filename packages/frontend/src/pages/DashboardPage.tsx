@@ -52,7 +52,7 @@ const DashboardPage: React.FC = () => {
       
       // Fetch contacts for stats
       const contactsResponse = await apiService.getContacts();
-      const contacts = contactsResponse.contacts || [];
+      const contacts = (contactsResponse as any).contacts || [];
       
       // Calculate stats
       const now = new Date();

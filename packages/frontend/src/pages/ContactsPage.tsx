@@ -40,7 +40,7 @@ const ContactsPage: React.FC = () => {
     try {
       setLoading(true);
       const response = await apiService.getContacts();
-      setContacts(response.contacts || []);
+      setContacts((response as any).contacts || []);
     } catch (err) {
       setError('Failed to fetch contacts');
       console.error('Error fetching contacts:', err);
